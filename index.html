@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CloudGrep - AWS Cloud Service Search</title>
+  <meta name="description"
+    content="CloudGrep puzzle game. Discover popular AWS cloud services in a responsive word search grid with hints and timer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-layout">
+    <header class="aws-header">
+      <div class="header-left">
+        <div class="logo-group">
+          <div class="aws-badge-icon" aria-hidden="true">
+            <img src="AWSSBG-logo.jpg" alt="AWS Logo" class="header-logo-img">
+          </div>
+          <div>
+            <div class="logo-title-row">
+              <h1 class="logo-title">Cloud<span>Grep</span></h1>
+            </div>
+            <p class="logo-subtitle">Find 14 AWS cloud services hidden in the grid</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="stat-pill" title="Elapsed Time">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span id="timer-display">00:00</span>
+        </div>
+
+        <div class="stat-pill" title="Services Found">
+          <svg class="icon text-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span id="progress-display">0 / 14</span>
+        </div>
+
+        <button id="btn-sound" class="btn-icon" aria-label="Toggle Sound" title="Toggle Sound">
+          <svg id="sound-icon-on" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="sound-icon-off" class="icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M17 9l4 4m0-4l-4 4"></path>
+          </svg>
+        </button>
+
+        <button id="btn-new-game" class="btn btn-secondary" title="Start a fresh randomized puzzle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>New Game</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <section class="board-section">
+        <div class="action-banner">
+          <div class="hint-control-group">
+            <button id="btn-hint" class="btn btn-hint" title="Get a subtle clue for an unfound AWS service">
+              <span class="hint-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18h6m-4 4h2M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z">
+                  </path>
+                </svg>
+              </span>
+              <span class="hint-text">Hint</span>
+              <span id="hint-counter" class="hint-badge">3</span>
+            </button>
+          </div>
+          <div class="hint-guide-text">
+            <span>Hints highlight the area and length of an unfound service</span>
+          </div>
+        </div>
+
+        <div id="toast-message" class="toast-bar hidden" role="status" aria-live="polite">
+          <span id="toast-text"></span>
+        </div>
+
+        <div class="grid-wrapper">
+          <div id="word-grid" class="word-grid" role="grid" aria-label="AWS Word Hunt Puzzle Grid"></div>
+          <svg id="selection-svg" class="selection-svg" xmlns="http://www.w3.org/2000/svg">
+            <line id="active-line" class="active-selection-line" x1="0" y1="0" x2="0" y2="0" />
+            <g id="found-lines-group"></g>
+          </svg>
+        </div>
+
+        <div class="how-to-play-hint">
+          <svg class="icon info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span><strong>Drag</strong> across letters or <strong>tap</strong> the first and last letter in any direction
+            (horizontal, vertical, diagonal).</span>
+        </div>
+      </section>
+
+      <aside class="sidebar-section">
+        <div class="sidebar-header">
+          <div class="sidebar-title-row">
+            <h2>AWS Services to Find</h2>
+            <span id="remaining-count-badge" class="badge-count">14 left</span>
+          </div>
+          <p class="sidebar-sub">Find all hidden AWS services in the grid</p>
+        </div>
+
+        <div class="category-filters">
+          <button class="filter-pill active" data-filter="all">All (<span id="cat-all-count">14</span>)</button>
+          <button class="filter-pill" data-filter="compute">Compute</button>
+          <button class="filter-pill" data-filter="storage">Storage</button>
+          <button class="filter-pill" data-filter="database">Database</button>
+          <button class="filter-pill" data-filter="aiml">AI / ML</button>
+          <button class="filter-pill" data-filter="networking">Networking</button>
+          <button class="filter-pill" data-filter="security">Security</button>
+        </div>
+
+        <div id="word-list" class="word-list-container"></div>
+
+        <div id="service-info-card" class="service-info-card hidden">
+          <div class="service-info-header">
+            <span class="info-tag" id="info-category">Compute</span>
+            <button id="btn-close-info" class="btn-close-sm" aria-label="Close info card">&times;</button>
+          </div>
+          <h3 id="info-title">Amazon EC2</h3>
+          <p id="info-desc">Secure and resizable compute capacity for virtually any workload in the cloud.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="aws-footer">
+      <span>CloudGrep &bull; Cloud Service Puzzle</span>
+    </footer>
+  </div>
+
+  <div id="victory-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-confetti-canvas-container">
+        <canvas id="confetti-canvas"></canvas>
+      </div>
+      <div class="modal-icon-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path>
+        </svg>
+      </div>
+
+      <h2 id="modal-title" class="modal-title">Mission Accomplished!</h2>
+      <p id="modal-subtitle" class="modal-subtitle">All AWS cloud services successfully uncovered!</p>
+
+      <div class="modal-stats-grid">
+        <div class="modal-stat-box">
+          <span class="stat-number" id="final-time">02:18</span>
+          <span class="stat-label">Completion Time</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-number text-orange" id="final-rating">Hunter</span>
+          <span class="stat-label">Rank</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-number" id="final-hints">1</span>
+          <span class="stat-label">Hints Used</span>
+        </div>
+      </div>
+
+      <div class="modal-feedback" id="modal-evaluation">
+        All 14 AWS services successfully uncovered.
+      </div>
+
+      <div class="modal-actions">
+        <button id="modal-btn-replay" class="btn btn-primary btn-large">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>Play Again</span>
+        </button>
+        <button id="modal-btn-review" class="btn btn-secondary btn-large">Review Grid</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
