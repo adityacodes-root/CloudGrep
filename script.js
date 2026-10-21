@@ -131,7 +131,7 @@ const PALETTE_COLORS = [
 ];
 
 const GRID_SIZE = 15;
-const WORDS_COUNT = 14;
+let wordsCount = 14;
 
 const state = {
   grid: [],
@@ -269,7 +269,7 @@ function generatePuzzle() {
   const maxBoardAttempts = 50;
 
   const shuffledPool = [...AWS_SERVICES_POOL].sort(() => 0.5 - Math.random());
-  const selectedWords = shuffledPool.slice(0, WORDS_COUNT);
+  const selectedWords = shuffledPool.slice(0, wordsCount);
 
   selectedWords.sort((a, b) => b.name.length - a.name.length);
 
@@ -397,7 +397,6 @@ function initGame() {
   state.timerSeconds = 0;
 
   updateTimerUI();
-  updateProgressUI();
   updateHintButtonUI();
   hideToast();
   hideServiceInfo();
@@ -409,6 +408,7 @@ function initGame() {
   state.grid = puzzle.grid;
   state.activeWords = puzzle.words;
 
+  updateProgressUI();
   renderGrid();
   renderWordList();
   startTimer();
@@ -953,6 +953,19 @@ dom.modalBtnReview.addEventListener('click', () => {
 dom.btnNewGame.addEventListener('click', () => {
   sfx.cellClick();
   initGame();
+});
+
+document.querySelectorAll('.count-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const count = parseInt(btn.dataset.count, 10);
+    if (wordsCount === count) return;
+    wordsCount = count;
+    document.querySelectorAll('.count-btn').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.count, 10) === count);
+    });
+    sfx.cellClick();
+    initGame();
+  });
 });
 
 let confettiAnimationId = null;
